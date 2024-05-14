@@ -1,8 +1,6 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
-#include "matrix_algo.h"
-#include "matrix_base.h"
 #include "operatable.h"
 
 #include <algorithm>
@@ -133,11 +131,15 @@ namespace arr2d
                 return largest;
             };
 
-            for (; curr_row < m; curr_col++, curr_row++)
+            while (curr_row < m)
             {
                 measure_t largest = find_largest();
                 if (get(largest, curr_col) == static_cast<T>(0))
-                    UNLIKELY { continue; }
+                    UNLIKELY
+                    {
+                        curr_col++;
+                        continue;
+                    }
                 if (largest != curr_row)
                     LIKELY { row_swap(curr_row, largest); }
 
@@ -146,6 +148,9 @@ namespace arr2d
                 row_scale(curr_row, pivot_reciprocal);
                 for (measure_t row = curr_row + 1; row < m; row++)
                     row_add_scaled(curr_row, -get(row, curr_col), row);
+
+                curr_col++;
+                curr_row++;
             }
         }
         constexpr void make_rref()
@@ -222,7 +227,9 @@ namespace arr2d
     matrix<T, measure_t, m, n> operator+(const matrix<T, measure_t, m, n>& lhs, const matrix<T, measure_t, m, n>& rhs)
     {
         matrix<T, measure_t, m, n> result;
-        matrix_algo::add<T, measure_t>(m, n, result.get, lhs.get, rhs.get);
+        for (measure_t x = 0; x < n; x++)
+            for (measure_t y = 0; y < m; y++)
+                result(y, x) = lhs(y, x) + rhs(y, x);
         return result;
     }
 
@@ -230,14 +237,18 @@ namespace arr2d
     matrix<T, measure_t, m, n> operator-(const matrix<T, measure_t, m, n>& lhs, const matrix<T, measure_t, m, n>& rhs)
     {
         matrix<T, measure_t, m, n> result;
-        matrix_algo::sub<T, measure_t>(m, n, result.get, lhs.get, rhs.get);
+        for (measure_t x = 0; x < n; x++)
+            for (measure_t y = 0; y < m; y++)
+                result(y, x) = lhs(y, x) - rhs(y, x);
         return result;
     }
     template <typename T, typename measure_t, measure_t m, measure_t n>
     matrix<T, measure_t, m, n> operator*(const matrix<T, measure_t, m, n>& mt, T scaler)
     {
         matrix<T, measure_t, m, n> result;
-        matrix_algo::scale<T, measure_t>(m, n, result.get, mt.get, scaler);
+        for (measure_t x = 0; x < n; x++)
+            for (measure_t y = 0; y < m; y++)
+                result(y, x) = mt(y, x) * scaler;
         return result;
     }
 
