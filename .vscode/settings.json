@@ -51,6 +51,8 @@
         "format": "cpp",
         "charconv": "cpp",
         "span": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "version": "cpp"
+    },
+    "todo-tree.tree.showBadges": false
 }

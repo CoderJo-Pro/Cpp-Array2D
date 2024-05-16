@@ -1,13 +1,12 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
-#include "operatable.h"
-
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <iostream>
 #include <type_traits>
+#include <version>
 
 // macro defines
 #include "defs.h"
@@ -33,10 +32,10 @@ namespace arr2d
 #if __cpp_lib_concepts >= 202002L
         requires std::unsigned_integral<measure_t>
 #endif
-    class matrix : public row_operatable<T, measure_t>
+    class matrix
     {
 #if __cpp_lib_concepts < 202002L
-        static_assert(std::is_integral<measure_t>::value && std::is_unsigned<measure_t>::value,
+        static_assert(std::is_integral_v<measure_t> && std::is_unsigned_v<measure_t>,
                       "matrix<T, measure_t>: std::is_integral<measure_t>::value && std::is_unsigned<measure_t>::value != true");
 #endif
 
@@ -71,22 +70,22 @@ namespace arr2d
         constexpr measure_t width() const { return n; }
         constexpr measure_t height() const { return m; }
 
-        constexpr void row_swap(measure_t a, measure_t b) override
+        constexpr void row_swap(measure_t a, measure_t b)
         {
             for (measure_t col = 0; col < n; col++)
                 std::swap(get(a, col), get(b, col));
         }
-        constexpr void row_scale(measure_t row, T scaler) override
+        constexpr void row_scale(measure_t row, T scaler)
         {
             for (measure_t col = 0; col < n; col++)
                 get(row, col) *= scaler;
         }
-        constexpr void row_add(measure_t from, measure_t to) override
+        constexpr void row_add(measure_t from, measure_t to)
         {
             for (measure_t col = 0; col < n; col++)
                 get(to, col) += get(from, col);
         }
-        constexpr void row_add_scaled(measure_t from, T scaler, measure_t to) override
+        constexpr void row_add_scaled(measure_t from, T scaler, measure_t to)
         {
             for (measure_t col = 0; col < n; col++)
                 get(to, col) += get(from, col) * scaler;
@@ -122,18 +121,13 @@ namespace arr2d
             measure_t curr_col = 0;
             measure_t curr_row = 0;
 
-            auto find_largest = [this, &curr_col, &curr_row]() -> measure_t
+            while (curr_row < m)
             {
                 measure_t largest = curr_row;
                 for (measure_t row = largest + 1; row < m; row++)
                     if (std::abs(get(largest, curr_col)) < std::abs(get(row, curr_col)))
                         largest = row;
-                return largest;
-            };
 
-            while (curr_row < m)
-            {
-                measure_t largest = find_largest();
                 if (get(largest, curr_col) == static_cast<T>(0))
                     UNLIKELY
                     {
@@ -170,10 +164,10 @@ namespace arr2d
             make_rref();
         }
 
-        /// @brief gets the element at x column and y row.
+        /// @brief Gets the element at x column and y row.
         /// @param y a measure_t for row index.
         /// @param x a measure_t for row column index.
-        /// @return element at x column and y row.
+        /// @return Element at x column and y row.
         constexpr T& operator()(measure_t y, measure_t x) { return get(y, x); }
         constexpr const T& operator()(measure_t y, measure_t x) const { return get(y, x); }
 

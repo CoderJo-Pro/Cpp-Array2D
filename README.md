@@ -14,6 +14,8 @@ template <typename T, typename measure_t, measure_t m, measure_t n>
 class matrix;
 ```
 ## Dev Direction
+The backward compatibility should at least with C++17.
+
 The grid class is pretty simple, just a encapsulation of a heap array with row pointers, the main problem is the matrix operations.
 Basically, I want to support addition, subtraction and multiplication of matrices, and the abbility to reduce, to *Row Echelon Form* and *Reduced Row Echelon Form*; these are pretty simple to implement, but when I introduce a `dyn_matrix`(dynamic version of matrix) for runtime size decision, I need a way to reuse the code.
 
