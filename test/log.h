@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef LOG_H_
+#define LOG_H_
 
 #include <iostream>
 
@@ -11,4 +11,4 @@ void log(T item)
     std::cout << item << std::endl;
 }
 
-#endif // LOG_H
+#endif // LOG_H_

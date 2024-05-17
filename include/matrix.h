@@ -45,6 +45,18 @@ namespace arr2d
 
         template <typename U>
         using matrix_by_type = matrix<U, measure_t, m, n>;
+        
+        using value_type = T;
+        using pointer = value_type*;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using iterator = value_type*;
+        using const_iterator = const value_type*;
+        using data_row = value_type*;
+        using data_row_ptr = data_row*;
+        using size_type = measure_t;
+        using difference_type = std::ptrdiff_t;
 
       private:
         matrix_data_impl<T, measure_t, m, n> data_;

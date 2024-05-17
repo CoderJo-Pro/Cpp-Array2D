@@ -10,6 +10,9 @@
 #include <type_traits>
 #include <version>
 
+// macro defs
+#include <defs.h>
+
 namespace arr2d
 {
 
@@ -25,7 +28,6 @@ namespace arr2d
         // #endif
 
       public:
-        using iterator_category = std::random_access_iterator_tag;
         using value_type = T;
         using pointer = value_type*;
         using const_pointer = const value_type*;
@@ -36,6 +38,7 @@ namespace arr2d
         using data_row = value_type*;
         using data_row_ptr = data_row*;
         using size_type = measure_t;
+        using difference_type = std::ptrdiff_t;
 
       private:
         data_row_ptr data_ = nullptr;
@@ -63,7 +66,7 @@ namespace arr2d
         constexpr void copy_from(const grid& other) { std::copy_n(*other.data_, size_, *data_); }
 
       public:
-        grid() {}
+        grid() = default;
         grid(measure_t p_width, measure_t p_height) : width_(p_width), height_(p_height), size_(p_width * p_height)
         {
             data_ = alloc_data(width_, height_, size_);
@@ -73,15 +76,18 @@ namespace arr2d
 
         ~grid();
 
-        constexpr measure_t size() const noexcept { return size_; }
-        constexpr measure_t width() const noexcept { return width_; }
-        constexpr measure_t height() const noexcept { return height_; }
+        NODISCARD constexpr measure_t empty() const noexcept { return size_ == 0;}
+        NODISCARD constexpr measure_t max_size() const noexcept { return size_;}
+
+        NODISCARD constexpr measure_t size() const noexcept { return size_; }
+        NODISCARD constexpr measure_t width() const noexcept { return width_; }
+        NODISCARD constexpr measure_t height() const noexcept { return height_; }
 
         constexpr reference get(measure_t index) { return (*data_)[index]; }
-        constexpr const_reference get(measure_t index) const { return (*data_)[index]; }
+        NODISCARD constexpr const_reference get(measure_t index) const { return (*data_)[index]; }
 
         constexpr reference get(measure_t x, measure_t y) { return data_[y][x]; }
-        constexpr const_reference get(measure_t x, measure_t y) const { return data_[y][x]; }
+        NODISCARD constexpr const_reference get(measure_t x, measure_t y) const { return data_[y][x]; }
 
         constexpr reference at(measure_t index) { return const_cast<reference>(static_cast<const grid>(*this).at(index)); }
         constexpr const_reference at(measure_t index) const;
@@ -90,7 +96,7 @@ namespace arr2d
         {
             return const_cast<reference>(static_cast<const grid>(*this).at(x, y));
         }
-        constexpr const_reference at(measure_t x, measure_t y) const;
+        NODISCARD constexpr const_reference at(measure_t x, measure_t y) const;
 
         template <typename U>
         constexpr void clamp(U& x, U& y) const noexcept
@@ -102,11 +108,11 @@ namespace arr2d
         constexpr iterator begin() { return *data_; }
         constexpr iterator end() { return *data_ + size(); }
 
-        constexpr const_iterator cbegin() const { return *data_; }
-        constexpr const_iterator cend() const { return *data_ + size(); }
+        NODISCARD constexpr const_iterator cbegin() const { return *data_; }
+        NODISCARD constexpr const_iterator cend() const { return *data_ + size(); }
 
         // TODO: Implement swap container method
-        // constexpr void swap();
+        constexpr void swap(grid& other) noexcept;
 
         constexpr grid& operator=(const grid& rhs);
         constexpr grid& operator=(grid&& rhs) noexcept;
@@ -161,7 +167,15 @@ namespace arr2d
     }
 
     template <typename T, typename measure_t>
-    constexpr grid<T, measure_t>& grid<T, measure_t>::operator=(const grid<T, measure_t>& rhs)
+    constexpr void grid<T, measure_t>::swap(grid& other) noexcept
+    {
+        grid temp{other};
+        other = std::move(*this);
+        *this = std::move(temp);
+    }
+
+    template <typename T, typename measure_t>
+    constexpr grid<T, measure_t>& grid<T, measure_t>::operator=(const grid& rhs)
     {
         // This code only allocates the memory to avoid pointing null data when bad_alloc
         data_row_ptr new_data = alloc_data(rhs.width_, rhs.height_, rhs.size_);
@@ -176,7 +190,7 @@ namespace arr2d
     }
 
     template <typename T, typename measure_t>
-    constexpr grid<T, measure_t>& grid<T, measure_t>::operator=(grid<T, measure_t>&& rhs) noexcept
+    constexpr grid<T, measure_t>& grid<T, measure_t>::operator=(grid&& rhs) noexcept
     {
         if (this == &rhs)
             return *this;

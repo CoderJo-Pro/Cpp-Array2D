@@ -6,8 +6,6 @@
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
-#include <string>
-#include <utility>
 
 template <typename T, typename measure_t = std::size_t>
 void show_grid(const arr2d::grid<T, measure_t>& g)
@@ -82,6 +80,11 @@ int main()
     g2[0] = 100;
     cout.setf(std::ios_base::boolalpha);
     log(g != g2);
+
+    g.swap(g2);
+    log();
+    show_grid(g);
+    show_grid(g2);
 
     log("Done.");
 }
