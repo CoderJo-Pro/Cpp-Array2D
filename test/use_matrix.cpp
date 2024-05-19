@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <matrix.h>
+#include <matrix_algo.h>
 #include <vector>
 
 using namespace arr2d;
@@ -26,8 +27,8 @@ int main()
     log(mt2);
 
     log("Matrix transposing:");
-    log("mt.transposed()");
-    cout << mt.transposed() << endl;
+    log("transpose(mt)");
+    cout << transpose(mt) << endl;
 
     log("Matrix binary + operation:");
     log("+mt");
@@ -48,10 +49,10 @@ int main()
     log(2 * mt);
 
     log("Matrix multiplication:");
-    log("mt * mt.transposed()");
-    cout << mt * mt.transposed() << endl;
-    log("mt.transposed() * mt");
-    cout << mt.transposed() * mt << endl;
+    log("mt * transpose(mt)");
+    cout << mt * transpose(mt) << endl;
+    log("transpose(mt) * mt");
+    cout << transpose(mt) * mt << endl;
 
     //  x -  y =  4
     // 2x + 3y = -6

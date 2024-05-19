@@ -13,39 +13,14 @@
 
 namespace arr2d
 {
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    class matrix_data_impl
-    {
-      public:
-        using data_column = std::array<T, m>;
-        using data_block = std::array<data_column, n>;
-
-      private:
-        data_block data_;
-
-      public:
-        constexpr T& get(measure_t y, measure_t x) { return data_[x][y]; }
-        constexpr const T& get(measure_t y, measure_t x) const { return data_[x][y]; }
-    };
 
     template <typename T, typename measure_t, measure_t m, measure_t n>
-#if __cpp_lib_concepts >= 202002L
-        requires std::unsigned_integral<measure_t>
-#endif
     class matrix
     {
-#if __cpp_lib_concepts < 202002L
         static_assert(std::is_integral_v<measure_t> && std::is_unsigned_v<measure_t>,
                       "matrix<T, measure_t>: std::is_integral<measure_t>::value && std::is_unsigned<measure_t>::value != true");
-#endif
 
       public:
-        template <measure_t h, measure_t w>
-        using matrix_by_size = matrix<T, measure_t, h, w>;
-
-        template <typename U>
-        using matrix_by_type = matrix<U, measure_t, m, n>;
-        
         using value_type = T;
         using pointer = value_type*;
         using const_pointer = const value_type*;
@@ -53,90 +28,90 @@ namespace arr2d
         using const_reference = const value_type&;
         using iterator = value_type*;
         using const_iterator = const value_type*;
-        using data_row = value_type*;
-        using data_row_ptr = data_row*;
         using size_type = measure_t;
         using difference_type = std::ptrdiff_t;
 
-      private:
-        matrix_data_impl<T, measure_t, m, n> data_;
+        template <size_type h, size_type w>
+        using matrix_by_size = matrix<T, size_type, h, w>;
 
-        constexpr T& get(measure_t y, measure_t x) { return data_.get(y, x); }
-        constexpr const T& get(measure_t y, measure_t x) const { return data_.get(y, x); }
+        template <typename U>
+        using matrix_by_type = matrix<U, size_type, m, n>;
+        
+      private:
+        using data_row = std::array<T, n>;
+        using data_block = std::array<data_row, m>;
+
+        data_block data_;
+
+        constexpr T& get(size_type y, size_type x) { return data_[y][x]; }
+        constexpr const T& get(size_type y, size_type x) const { return data_[y][x]; }
 
       public:
-        matrix()
+        matrix() = default;
+
+        template <typename U>
+        matrix(const U& init_val)
         {
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
-                    get(y, x) = 0;
+            std::for_each_n(begin(), m * n, [&init_val](T& item) { item = init_val; });
         }
         template <typename U>
         matrix(U init_data[m][n])
         {
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
+            for (size_type x = 0; x < n; x++)
+                for (size_type y = 0; y < m; y++)
                     get(y, x) = init_data[y][x];
         }
 
-        constexpr measure_t width() const { return n; }
-        constexpr measure_t height() const { return m; }
+        constexpr size_type width() const { return n; }
+        constexpr size_type height() const { return m; }
 
-        constexpr void row_swap(measure_t a, measure_t b)
+        constexpr size_type size() const { return m * n; }
+        constexpr size_type max_size() const { return size(); }
+
+        constexpr iterator begin() { return data_.begin()->begin(); }
+        constexpr iterator end() { return data_.end()->begin(); }
+
+        constexpr const_iterator cbegin() const { return data_.begin()->begin(); }
+        constexpr const_iterator cend() const { return data_.end()->begin(); }
+
+        constexpr void row_swap(size_type a, size_type b, size_type start_col = 0)
         {
-            for (measure_t col = 0; col < n; col++)
+            for (size_type col = start_col; col < n; col++)
                 std::swap(get(a, col), get(b, col));
         }
-        constexpr void row_scale(measure_t row, T scaler)
+        constexpr void row_scale(size_type row, T scaler, size_type start_col = 0)
         {
-            for (measure_t col = 0; col < n; col++)
+            for (size_type col = start_col; col < n; col++)
                 get(row, col) *= scaler;
         }
-        constexpr void row_add(measure_t from, measure_t to)
+        constexpr void row_add(size_type from, size_type to, size_type start_col = 0)
         {
-            for (measure_t col = 0; col < n; col++)
+            for (size_type col = start_col; col < n; col++)
                 get(to, col) += get(from, col);
         }
-        constexpr void row_add_scaled(measure_t from, T scaler, measure_t to)
+        constexpr void row_add_scaled(size_type from, T scaler, size_type to, size_type start_col = 0)
         {
-            for (measure_t col = 0; col < n; col++)
+            for (size_type col = start_col; col < n; col++)
                 get(to, col) += get(from, col) * scaler;
         }
 
-        constexpr measure_t row_pivot(measure_t row)
+        constexpr size_type row_pivot(size_type row)
         {
-            for (measure_t col = 0; col < n; col++)
+            for (size_type col = 0; col < n; col++)
                 if (get(row, col) != 0)
                     LIKELY { return col; }
             return n;
         }
 
-        constexpr void transpose()
-        {
-            static_assert(m == n, "matrix<T, measure_t, m, n>: m != n");
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
-                    result(x, y) = get(y, x);
-        }
-
-        constexpr matrix_by_size<n, m> transposed() const
-        {
-            matrix_by_size<n, m> result;
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
-                    result(x, y) = operator()(y, x);
-            return result;
-        }
-
         constexpr void make_ref()
         {
-            measure_t curr_col = 0;
-            measure_t curr_row = 0;
+            size_type curr_col = 0;
+            size_type curr_row = 0;
 
             while (curr_row < m)
             {
-                measure_t largest = curr_row;
-                for (measure_t row = largest + 1; row < m; row++)
+                size_type largest = curr_row;
+                for (size_type row = largest + 1; row < m; row++)
                     if (std::abs(get(largest, curr_col)) < std::abs(get(row, curr_col)))
                         largest = row;
 
@@ -147,13 +122,13 @@ namespace arr2d
                         continue;
                     }
                 if (largest != curr_row)
-                    LIKELY { row_swap(curr_row, largest); }
+                    LIKELY { row_swap(curr_row, largest, curr_col); }
 
                 // can modify here to multiply pivot_reciprocal with pivot every row below for scaler when width is bigger
                 T pivot_reciprocal = static_cast<T>(1) / get(curr_row, curr_col);
-                row_scale(curr_row, pivot_reciprocal);
-                for (measure_t row = curr_row + 1; row < m; row++)
-                    row_add_scaled(curr_row, -get(row, curr_col), row);
+                row_scale(curr_row, pivot_reciprocal, curr_col);
+                for (size_type row = curr_row + 1; row < m; row++)
+                    row_add_scaled(curr_row, -get(row, curr_col), row, curr_col);
 
                 curr_col++;
                 curr_row++;
@@ -161,11 +136,11 @@ namespace arr2d
         }
         constexpr void make_rref()
         {
-            for (measure_t curr_row = m - 1; curr_row > 0; curr_row--)
+            for (size_type curr_row = m - 1; curr_row > 0; curr_row--)
             {
-                measure_t pivot = row_pivot(curr_row);
+                size_type pivot = row_pivot(curr_row);
                 if (pivot != n)
-                    for (measure_t row = 0; row < curr_row; row++)
+                    for (size_type row = 0; row < curr_row; row++)
                         row_add_scaled(curr_row, -get(row, pivot), row);
             }
         }
@@ -177,11 +152,11 @@ namespace arr2d
         }
 
         /// @brief Gets the element at x column and y row.
-        /// @param y a measure_t for row index.
-        /// @param x a measure_t for row column index.
+        /// @param y a size_type for row index.
+        /// @param x a size_type for row column index.
         /// @return Element at x column and y row.
-        constexpr T& operator()(measure_t y, measure_t x) { return get(y, x); }
-        constexpr const T& operator()(measure_t y, measure_t x) const { return get(y, x); }
+        constexpr T& operator()(size_type y, size_type x) { return get(y, x); }
+        constexpr const T& operator()(size_type y, size_type x) const { return get(y, x); }
 
         /// @brief Binary operation: +matrix
         /// @return copy of origin matrix
@@ -192,8 +167,8 @@ namespace arr2d
         matrix operator-() const
         {
             matrix result;
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
+            for (size_type x = 0; x < n; x++)
+                for (size_type y = 0; y < m; y++)
                     result(y, x) = -operator()(y, x);
             return result;
         }
@@ -202,16 +177,16 @@ namespace arr2d
         // friend matrix operator*(const matrix& mt, T scaler);
         // friend matrix operator*(T scaler, const matrix& mt);
 
-        template <measure_t p>
+        template <size_type p>
         matrix_by_size<m, p> operator*(const matrix_by_size<n, p>& rhs) const
         {
             matrix_by_size<m, p> result;
 
-            for (measure_t x = 0; x < p; x++)
-                for (measure_t y = 0; y < m; y++)
+            for (size_type x = 0; x < p; x++)
+                for (size_type y = 0; y < m; y++)
                 {
                     T sum = 0;
-                    for (measure_t i = 0; i < n; i++)
+                    for (size_type i = 0; i < n; i++)
                         sum += operator()(y, i) * rhs(i, x);
                     result(y, x) = sum;
                 }
@@ -222,56 +197,56 @@ namespace arr2d
         operator matrix_by_type<U>() const
         {
             matrix_by_type<U> result;
-            for (measure_t x = 0; x < n; x++)
-                for (measure_t y = 0; y < m; y++)
+            for (size_type x = 0; x < n; x++)
+                for (size_type y = 0; y < m; y++)
                     result(y, x) = get(y, x);
             return result;
         }
     };
 
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    matrix<T, measure_t, m, n> operator+(const matrix<T, measure_t, m, n>& lhs, const matrix<T, measure_t, m, n>& rhs)
+    template <typename T, typename size_type, size_type m, size_type n>
+    matrix<T, size_type, m, n> operator+(const matrix<T, size_type, m, n>& lhs, const matrix<T, size_type, m, n>& rhs)
     {
-        matrix<T, measure_t, m, n> result;
-        for (measure_t x = 0; x < n; x++)
-            for (measure_t y = 0; y < m; y++)
+        matrix<T, size_type, m, n> result;
+        for (size_type x = 0; x < n; x++)
+            for (size_type y = 0; y < m; y++)
                 result(y, x) = lhs(y, x) + rhs(y, x);
         return result;
     }
 
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    matrix<T, measure_t, m, n> operator-(const matrix<T, measure_t, m, n>& lhs, const matrix<T, measure_t, m, n>& rhs)
+    template <typename T, typename size_type, size_type m, size_type n>
+    matrix<T, size_type, m, n> operator-(const matrix<T, size_type, m, n>& lhs, const matrix<T, size_type, m, n>& rhs)
     {
-        matrix<T, measure_t, m, n> result;
-        for (measure_t x = 0; x < n; x++)
-            for (measure_t y = 0; y < m; y++)
+        matrix<T, size_type, m, n> result;
+        for (size_type x = 0; x < n; x++)
+            for (size_type y = 0; y < m; y++)
                 result(y, x) = lhs(y, x) - rhs(y, x);
         return result;
     }
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    matrix<T, measure_t, m, n> operator*(const matrix<T, measure_t, m, n>& mt, T scaler)
+    template <typename T, typename size_type, size_type m, size_type n>
+    matrix<T, size_type, m, n> operator*(const matrix<T, size_type, m, n>& mt, T scaler)
     {
-        matrix<T, measure_t, m, n> result;
-        for (measure_t x = 0; x < n; x++)
-            for (measure_t y = 0; y < m; y++)
+        matrix<T, size_type, m, n> result;
+        for (size_type x = 0; x < n; x++)
+            for (size_type y = 0; y < m; y++)
                 result(y, x) = mt(y, x) * scaler;
         return result;
     }
 
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    inline matrix<T, measure_t, m, n> operator*(T scaler, const matrix<T, measure_t, m, n>& mt)
+    template <typename T, typename size_type, size_type m, size_type n>
+    inline matrix<T, size_type, m, n> operator*(T scaler, const matrix<T, size_type, m, n>& mt)
     {
         return mt * scaler;
     }
 
-    template <typename T, typename measure_t, measure_t m, measure_t n>
-    inline std::ostream& operator<<(std::ostream& os, const matrix<T, measure_t, m, n>& mt)
+    template <typename T, typename size_type, size_type m, size_type n>
+    inline std::ostream& operator<<(std::ostream& os, const matrix<T, size_type, m, n>& mt)
     {
         std::ios_base::fmtflags flag = os.setf(std::ios_base::dec, std::ios_base::floatfield);
 
-        for (measure_t y = 0; y < m; y++)
+        for (size_type y = 0; y < m; y++)
         {
-            for (measure_t x = 0; x < n; x++)
+            for (size_type x = 0; x < n; x++)
             {
                 // std::cout.setf(std::ios_base::fixed);
                 // std::cout.precision(3);

@@ -74,12 +74,17 @@ int main()
     }
 
     grid<int> g2 = g;
-    log("g == g2:");
     cout.setf(std::ios_base::boolalpha);
     log(g == g2);
     g2[0] = 100;
     cout.setf(std::ios_base::boolalpha);
     log(g != g2);
+
+    log("g:");
+    show_grid(g);
+    log("g2:");
+    show_grid(g2);
+    log("g == g2:");
 
     g.swap(g2);
     log();

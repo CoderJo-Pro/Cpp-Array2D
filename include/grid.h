@@ -17,15 +17,10 @@ namespace arr2d
 {
 
     template <typename T, typename measure_t = std::size_t>
-    // #if __cpp_lib_concepts >= 202002L
-    //         requires std::unsigned_integral<measure_t>
-    // #endif
     class grid
     {
-        // #if __cpp_lib_concepts < 202002L
         static_assert(std::is_integral_v<measure_t> && std::is_unsigned_v<measure_t>,
                       "grid<T, measure_t>: std::is_integral<measure_t>::value && std::is_unsigned<measure_t>::value != true");
-        // #endif
 
       public:
         using value_type = T;
@@ -64,6 +59,13 @@ namespace arr2d
         }
 
         constexpr void copy_from(const grid& other) { std::copy_n(*other.data_, size_, *data_); }
+        constexpr void move_from(const grid& other)
+        {
+            data_ = other.data_;
+            size_ = other.size_;
+            width_ = other.width_;
+            height_ = other.height_;
+        }
 
       public:
         grid() = default;
@@ -169,9 +171,15 @@ namespace arr2d
     template <typename T, typename measure_t>
     constexpr void grid<T, measure_t>::swap(grid& other) noexcept
     {
-        grid temp{other};
-        other = std::move(*this);
-        *this = std::move(temp);
+        data_row_ptr temp_data = data_;
+        measure_t temp_size = size_;
+        measure_t temp_width = width_;
+        measure_t temp_height = height_;
+        move_from(other);
+        other.data_ = temp_data;
+        other.size_ = temp_size;
+        other.width_ = temp_width;
+        other.height_ = temp_height;
     }
 
     template <typename T, typename measure_t>
@@ -195,10 +203,7 @@ namespace arr2d
         if (this == &rhs)
             return *this;
 
-        data_ = rhs.data_;
-        size_ = rhs.size_;
-        width_ = rhs.width_;
-        height_ = rhs.height_;
+        move_from(rhs);
         rhs.reset();
 
         return *this;
