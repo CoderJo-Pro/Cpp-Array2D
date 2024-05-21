@@ -2,10 +2,11 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <grid.h>
+#include <arr2d/grid.h>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 template <typename T, typename measure_t = std::size_t>
 void show_grid(const arr2d::grid<T, measure_t>& g)
@@ -45,16 +46,22 @@ int main()
 
     grid<int> g(3, 2);
 
-    log(g.width());
-    log(g.height());
-    log(g.size());
+    log("Width: ", g.width());
+    log("Height: ", g.height());
+    log("Size: ", g.size());
+    log("g:");
     show_grid(g);
 
     {
         grid<int> g2 = g;
+        log("g2:");
         show_grid(g2);
+
+        log("g1, after copy to g2:");
         show_grid(g);
     }
+
+    log("g1, after delete g2:");
     show_grid(g);
 
     grid<int> g3 = std::move(grid<int>(3, 2));
@@ -86,9 +93,11 @@ int main()
     show_grid(g2);
     log("g == g2:");
 
-    g.swap(g2);
-    log();
+    std::swap(g, g2);
+    log("After swap:");
+    log("g:");
     show_grid(g);
+    log("g2:");
     show_grid(g2);
 
     log("Done.");

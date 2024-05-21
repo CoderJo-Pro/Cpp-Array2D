@@ -1,8 +1,7 @@
 #include "log.h"
 
 #include <iostream>
-#include <matrix.h>
-#include <matrix_algo.h>
+#include <arr2d/matrix.h>
 #include <vector>
 
 using namespace arr2d;

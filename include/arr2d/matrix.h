@@ -9,7 +9,7 @@
 #include <version>
 
 // macro defines
-#include "defs.h"
+#include <arr2d/defs.h>
 
 namespace arr2d
 {
@@ -36,7 +36,7 @@ namespace arr2d
 
         template <typename U>
         using matrix_by_type = matrix<U, size_type, m, n>;
-        
+
       private:
         using data_row = std::array<T, n>;
         using data_block = std::array<data_row, m>;
@@ -105,8 +105,8 @@ namespace arr2d
 
         constexpr void make_ref()
         {
-            size_type curr_col = 0;
-            size_type curr_row = 0;
+            size_type curr_col{0};
+            size_type curr_row{0};
 
             while (curr_row < m)
             {
@@ -176,32 +176,6 @@ namespace arr2d
         // friend matrix operator+(const matrix& lhs, const matrix& rhs);
         // friend matrix operator*(const matrix& mt, T scaler);
         // friend matrix operator*(T scaler, const matrix& mt);
-
-        template <size_type p>
-        matrix_by_size<m, p> operator*(const matrix_by_size<n, p>& rhs) const
-        {
-            matrix_by_size<m, p> result;
-
-            for (size_type x = 0; x < p; x++)
-                for (size_type y = 0; y < m; y++)
-                {
-                    T sum = 0;
-                    for (size_type i = 0; i < n; i++)
-                        sum += operator()(y, i) * rhs(i, x);
-                    result(y, x) = sum;
-                }
-            return result;
-        }
-
-        template <typename U>
-        operator matrix_by_type<U>() const
-        {
-            matrix_by_type<U> result;
-            for (size_type x = 0; x < n; x++)
-                for (size_type y = 0; y < m; y++)
-                    result(y, x) = get(y, x);
-            return result;
-        }
     };
 
     template <typename T, typename size_type, size_type m, size_type n>
@@ -239,6 +213,22 @@ namespace arr2d
         return mt * scaler;
     }
 
+    template <typename T, typename size_type, size_type m, size_type n, size_type p>
+    matrix<T, size_type, m, p> operator*(const matrix<T, size_type, m, n>& lhs, const matrix<T, size_type, n, p>& rhs)
+    {
+        matrix<T, size_type, m, p> result;
+
+        for (size_type x = 0; x < p; x++)
+            for (size_type y = 0; y < m; y++)
+            {
+                T sum = 0;
+                for (size_type i = 0; i < n; i++)
+                    sum += lhs(y, i) * rhs(i, x);
+                result(y, x) = sum;
+            }
+        return result;
+    }
+
     template <typename T, typename size_type, size_type m, size_type n>
     inline std::ostream& operator<<(std::ostream& os, const matrix<T, size_type, m, n>& mt)
     {
@@ -247,11 +237,7 @@ namespace arr2d
         for (size_type y = 0; y < m; y++)
         {
             for (size_type x = 0; x < n; x++)
-            {
-                // std::cout.setf(std::ios_base::fixed);
-                // std::cout.precision(3);
                 os << mt(y, x) << ' ';
-            }
             os << std::endl;
         }
 
@@ -262,8 +248,18 @@ namespace arr2d
     template <typename T, std::size_t m, std::size_t n>
     using matrix_size_t = matrix<T, std::size_t, m, n>;
 
+    template <typename T, typename size_type, size_type m, size_type n>
+    constexpr matrix<T, size_type, n, m> transpose(const matrix<T, size_type, m, n>& mt)
+    {
+        matrix<T, size_type, n, m> result;
+        for (size_type y = 0; y < m; y++)
+            for (size_type x = 0; x < n; x++)
+                result(x, y) = mt(y, x);
+        return result;
+    }
+
 } // namespace arr2d
 
-#include "undefs.h"
+#include <arr2d/undefs.h>
 
 #endif // MATRIX_H_

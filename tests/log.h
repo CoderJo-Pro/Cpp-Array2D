@@ -11,4 +11,11 @@ void log(T item)
     std::cout << item << std::endl;
 }
 
+template <typename Arg, typename... Args>
+void log(Arg arg, Args... args)
+{
+    std::cout << arg;
+    log(args...);
+}
+
 #endif // LOG_H_
