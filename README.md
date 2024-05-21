@@ -1,7 +1,11 @@
 # Cpp-Array2D
 A C++ Library about 2D array template classes, grid and mathematical operations of matrices.
 ## Support
-This is a library about C++ 2 dimensional array templates, the latest support is C++17
+This is a library about C++ 2 dimensional array templates, the latest support is C++17.
+
+The library content which is valid to use is:
+- grid.h
+- matrix.h
 ## About
 Since 2D array is a common usecase, and I myself also need this type of API, so I decided to create this library.
 
@@ -18,6 +22,8 @@ template <typename T, typename measure_t, measure_t m, measure_t n>
 class matrix;
 ```
 ## Dev Direction
+Make backward compatibility to C++14.
+
 The grid class is pretty simple, just a encapsulation of a heap array with row pointers, the main problem is the matrix operations.
 Basically, I want to support addition, subtraction and multiplication of matrices, and the abbility to reduce, to *Row Echelon Form* and *Reduced Row Echelon Form*; these are pretty simple to implement, but when I introduce a `dyn_matrix`(dynamic version of matrix) for runtime size decision, I need a way to reuse the code.
 
