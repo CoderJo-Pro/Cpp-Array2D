@@ -1,7 +1,7 @@
 #include "log.h"
 
-#include <iostream>
 #include <arr2d/matrix.h>
+#include <iostream>
 #include <vector>
 
 using namespace arr2d;
@@ -29,19 +29,18 @@ int main()
     log("transpose(mt)");
     cout << transpose(mt) << endl;
 
-    log("Matrix binary + operation:");
+    log("Matrix binary operations:");
     log("+mt");
     cout << +mt << endl;
 
-    log("Matrix binary - operation:");
     log("-mt");
     cout << -mt << endl;
 
     log("Matrix adding:");
     log("mt + mt2");
     log(mt + mt2);
-    // log("mt - mt2");
-    // log(mt - mt2);
+    log("mt - mt2");
+    log(mt - mt2);
 
     log("Matrix scaling:");
     log("2 * mt");
@@ -53,9 +52,10 @@ int main()
     log("transpose(mt) * mt");
     cout << transpose(mt) * mt << endl;
 
+    log("Matrix reduction:");
+
     //  x -  y =  4
     // 2x + 3y = -6
-
     int linear_equation[][3] = {{1, -1, 4}, {2, 3, -6}};
 
     // int linear_equation[][4] = {{3, -1, 2, 4}, {-5, 3, 4, 0}, {8, -5, 1, -10}, {2, 3, -6, -4}};

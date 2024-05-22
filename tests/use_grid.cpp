@@ -1,8 +1,8 @@
 #include "log.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <arr2d/grid.h>
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
