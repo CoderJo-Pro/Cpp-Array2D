@@ -31,6 +31,9 @@ namespace arr2d
         using size_type = measure_t;
         using difference_type = std::ptrdiff_t;
 
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
         template <size_type h, size_type w>
         using matrix_by_size = matrix<T, size_type, h, w>;
 
@@ -54,6 +57,7 @@ namespace arr2d
         {
             std::for_each_n(begin(), m * n, [&init_val](T& item) { item = init_val; });
         }
+
         template <typename U>
         matrix(U init_data[m][n])
         {
@@ -71,8 +75,20 @@ namespace arr2d
         constexpr iterator begin() { return data_.begin()->begin(); }
         constexpr iterator end() { return data_.end()->begin(); }
 
-        constexpr const_iterator cbegin() const { return data_.begin()->begin(); }
-        constexpr const_iterator cend() const { return data_.end()->begin(); }
+        constexpr const_iterator begin() const { return data_.begin()->begin(); }
+        constexpr const_iterator end() const { return data_.end()->begin(); }
+
+        constexpr const_iterator cbegin() const { return begin(); }
+        constexpr const_iterator cend() const { return end(); }
+
+        constexpr reverse_iterator rbegin() { return reverse_iterator{end()}; }
+        constexpr reverse_iterator rend() { return reverse_iterator{begin()}; }
+
+        constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{end()}; }
+        constexpr const_reverse_iterator rend() const { return const_reverse_iterator{begin()}; }
+
+        constexpr const_reverse_iterator crbegin() const { return rbegin(); }
+        constexpr const_reverse_iterator crend() const { return rend(); }
 
         constexpr void row_swap(size_type a, size_type b, size_type start_col = 0)
         {
@@ -124,7 +140,8 @@ namespace arr2d
                 if (largest != curr_row)
                     LIKELY { row_swap(curr_row, largest, curr_col); }
 
-                // can modify here to multiply pivot_reciprocal with pivot every row below for scaler when width is bigger
+                // can modify here to multiply pivot_reciprocal with pivot every row below for scaler when width is
+                // bigger
                 T pivot_reciprocal = static_cast<T>(1) / get(curr_row, curr_col);
                 row_scale(curr_row, pivot_reciprocal, curr_col);
                 for (size_type row = curr_row + 1; row < m; row++)
@@ -167,9 +184,7 @@ namespace arr2d
         matrix operator-() const
         {
             matrix result;
-            for (size_type x = 0; x < n; x++)
-                for (size_type y = 0; y < m; y++)
-                    result(y, x) = -operator()(y, x);
+            std::transform(cbegin(), cend(), result.begin(), [](const T& item) { return -item; });
             return result;
         }
 
@@ -182,9 +197,8 @@ namespace arr2d
     matrix<T, size_type, m, n> operator+(const matrix<T, size_type, m, n>& lhs, const matrix<T, size_type, m, n>& rhs)
     {
         matrix<T, size_type, m, n> result;
-        for (size_type x = 0; x < n; x++)
-            for (size_type y = 0; y < m; y++)
-                result(y, x) = lhs(y, x) + rhs(y, x);
+        std::transform(lhs.cbegin(), lhs.cend(), rhs.cbegin(), result.begin(),
+                       [](const T& lhs_item, const T& rhs_item) { return lhs_item + rhs_item; });
         return result;
     }
 
@@ -192,18 +206,15 @@ namespace arr2d
     matrix<T, size_type, m, n> operator-(const matrix<T, size_type, m, n>& lhs, const matrix<T, size_type, m, n>& rhs)
     {
         matrix<T, size_type, m, n> result;
-        for (size_type x = 0; x < n; x++)
-            for (size_type y = 0; y < m; y++)
-                result(y, x) = lhs(y, x) - rhs(y, x);
+        std::transform(lhs.cbegin(), lhs.cend(), rhs.cbegin(), result.begin(),
+                       [](const T& lhs_item, const T& rhs_item) { return lhs_item - rhs_item; });
         return result;
     }
     template <typename T, typename size_type, size_type m, size_type n>
     matrix<T, size_type, m, n> operator*(const matrix<T, size_type, m, n>& mt, T scaler)
     {
         matrix<T, size_type, m, n> result;
-        for (size_type x = 0; x < n; x++)
-            for (size_type y = 0; y < m; y++)
-                result(y, x) = mt(y, x) * scaler;
+        std::transform(mt.cbegin(), mt.cend(), result.begin(), [&scaler](const T& item) { return item * scaler; });
         return result;
     }
 

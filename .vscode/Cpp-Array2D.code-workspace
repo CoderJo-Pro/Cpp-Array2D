@@ -74,6 +74,7 @@
 			"ratio": "cpp",
 			"mutex": "cpp",
 			"semaphore": "cpp"
-		}
+		},
+		"C_Cpp.default.cppStandard": "c++17"
 	}
 }

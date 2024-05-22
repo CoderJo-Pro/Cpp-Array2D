@@ -178,7 +178,7 @@ namespace arr2d
     constexpr typename grid<T, measure_t>::const_reference grid<T, measure_t>::at(measure_t index) const
     {
         if (index >= size_)
-            throw std::out_of_range{to_string("grid::at: index (which is ", index, ") >= size_(which is ", size(), ") ")};
+            throw std::out_of_range{to_string("grid::at: index (which is ", index, ") >= size_ (which is ", size(), ") ")};
         return get(index);
     }
 
