@@ -60,11 +60,11 @@ namespace arr2d
             data_row_ptr new_data{new data_row[p_height]};
             *new_data = new value_type[p_size];
             for (measure_t row = 1; row < p_height; row++)
-                new_data[row] = *new_data + row * p_width;
+                new_data[row] = new_data[row - 1] + p_width;
             return new_data;
         }
 
-        constexpr void copy_from(const grid& from, data_row_ptr data) { std::copy_n(*from.data_, size_, *data); }
+        constexpr void copy_from(const grid& from, data_row_ptr data) { std::copy(from.cbegin(), from.cend(), *data); }
         constexpr void copy_from(const grid& from) { copy_from(from, data_); }
 
         constexpr void move_info_from(const grid& from)
@@ -120,14 +120,14 @@ namespace arr2d
             y = std::clamp<U>(y, 0, height_);
         }
 
-        constexpr iterator begin() { return *data_; }
-        constexpr iterator end() { return *data_ + size(); }
+        constexpr iterator begin() { return iterator{*data_}; }
+        constexpr iterator end() { return iterator{*data_ + size()}; }
 
-        NODISCARD constexpr const_iterator begin() const { return *data_; }
-        NODISCARD constexpr const_iterator end() const { return *data_ + size(); }
+        NODISCARD constexpr const_iterator begin() const { return const_iterator{*data_}; }
+        NODISCARD constexpr const_iterator end() const { return const_iterator{*data_ + size()}; }
 
-        NODISCARD constexpr const_iterator cbegin() const { return begin(); }
-        NODISCARD constexpr const_iterator cend() const { return end(); }
+        NODISCARD constexpr const_iterator cbegin() const { return const_iterator{begin()}; }
+        NODISCARD constexpr const_iterator cend() const { return const_iterator{end()}; }
 
         constexpr reverse_iterator rbegin() { return reverse_iterator{end()}; }
         constexpr reverse_iterator rend() { return reverse_iterator{begin()}; }
@@ -135,8 +135,8 @@ namespace arr2d
         NODISCARD constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{end()}; }
         NODISCARD constexpr const_reverse_iterator rend() const { return const_reverse_iterator{begin()}; }
 
-        NODISCARD constexpr const_reverse_iterator crbegin() const { return rbegin(); }
-        NODISCARD constexpr const_reverse_iterator crend() const { return rend(); }
+        NODISCARD constexpr const_reverse_iterator crbegin() const { return const_reverse_iterator{rbegin()}; }
+        NODISCARD constexpr const_reverse_iterator crend() const { return const_reverse_iterator{rend()}; }
 
         constexpr void swap(grid& other) noexcept;
 
@@ -167,7 +167,7 @@ namespace arr2d
     template <typename T, typename measure_t>
     grid<T, measure_t>::~grid()
     {
-        if (data_)
+        if (data_) LIKELY
         {
             delete[] *data_;
             delete[] data_;
@@ -229,7 +229,7 @@ namespace arr2d
     constexpr grid<T, measure_t>& grid<T, measure_t>::operator=(grid&& rhs) noexcept
     {
         if (this == &rhs)
-            return *this;
+            UNLIKELY { return *this; }
 
         move_from(rhs);
         rhs.reset();
