@@ -10,8 +10,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-I",
-                "${workspaceFolder}\\include",
+                "-I ${workspaceFolder}\\include",
                 "-std=${config:C_Cpp.default.cppStandard}"
             ],
             "options": {

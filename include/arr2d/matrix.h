@@ -72,14 +72,14 @@ namespace arr2d
         constexpr size_type size() const { return m * n; }
         constexpr size_type max_size() const { return size(); }
 
-        constexpr iterator begin() { return data_.begin()->begin(); }
-        constexpr iterator end() { return data_.end()->begin(); }
+        constexpr iterator begin() { return iterator{data_.begin()->begin()}; }
+        constexpr iterator end() { return iterator{data_.end()->begin()}; }
 
-        constexpr const_iterator begin() const { return data_.begin()->begin(); }
-        constexpr const_iterator end() const { return data_.end()->begin(); }
+        constexpr const_iterator begin() const { return const_iterator{data_.begin()->begin()}; }
+        constexpr const_iterator end() const { return const_iterator{data_.end()->begin()}; }
 
-        constexpr const_iterator cbegin() const { return begin(); }
-        constexpr const_iterator cend() const { return end(); }
+        constexpr const_iterator cbegin() const { return const_iterator{begin()}; }
+        constexpr const_iterator cend() const { return const_iterator{end()}; }
 
         constexpr reverse_iterator rbegin() { return reverse_iterator{end()}; }
         constexpr reverse_iterator rend() { return reverse_iterator{begin()}; }
@@ -87,8 +87,8 @@ namespace arr2d
         constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{end()}; }
         constexpr const_reverse_iterator rend() const { return const_reverse_iterator{begin()}; }
 
-        constexpr const_reverse_iterator crbegin() const { return rbegin(); }
-        constexpr const_reverse_iterator crend() const { return rend(); }
+        constexpr const_reverse_iterator crbegin() const { return const_reverse_iterator{rbegin()}; }
+        constexpr const_reverse_iterator crend() const { return const_reverse_iterator{rend()}; }
 
         constexpr void row_swap(size_type a, size_type b, size_type start_col = 0)
         {
