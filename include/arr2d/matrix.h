@@ -177,11 +177,11 @@ namespace arr2d
 
         /// @brief Binary operation: +matrix
         /// @return copy of origin matrix
-        matrix operator+() const { return *this; }
+        constexpr operator+() const { return *this; }
 
         /// @brief Binary operation: -matrix
         /// @return negatived origin matrix
-        matrix operator-() const
+        constexpr matrix operator-() const
         {
             matrix result;
             std::transform(cbegin(), cend(), result.begin(), [](const T& item) { return -item; });
@@ -219,7 +219,7 @@ namespace arr2d
     }
 
     template <typename T, typename size_type, size_type m, size_type n>
-    inline matrix<T, size_type, m, n> operator*(T scaler, const matrix<T, size_type, m, n>& mt)
+    _ALWAYS_INLINE_ matrix<T, size_type, m, n> operator*(T scaler, const matrix<T, size_type, m, n>& mt)
     {
         return mt * scaler;
     }
@@ -270,7 +270,5 @@ namespace arr2d
     }
 
 } // namespace arr2d
-
-#include <arr2d/undefs.h>
 
 #endif // MATRIX_H_

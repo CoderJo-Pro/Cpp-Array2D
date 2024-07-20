@@ -7,23 +7,23 @@ namespace arr2d
 {
 
     template <typename Arg>
-    std::string to_string(Arg arg)
+    inline std::string to_string(Arg arg)
     {
         return std::to_string(arg);
     }
 
-    std::string to_string(const std::string& s)
+    inline std::string to_string(const std::string& s)
     {
         return s;
     }
 
-    std::string to_string(const char* const s)
+    inline std::string to_string(const char* const s)
     {
         return std::string{s};
     }
 
     template <typename Arg, typename... Args>
-    std::string to_string(Arg arg, Args... args)
+    inline std::string to_string(Arg arg, Args... args)
     {
         return to_string(arg) + to_string(args...);
     }

@@ -245,6 +245,4 @@ namespace arr2d
 
 } // namespace arr2d
 
-#include <arr2d/undefs.h>
-
 #endif // GRID_H
