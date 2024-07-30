@@ -64,10 +64,12 @@ int main()
     log("g1, after delete g2:");
     show_grid(g);
 
-    grid<int> g3 = std::move(grid<int>(3, 2));
+    grid<int> g3 = std::move(grid<int>(4, 2));
+    log("g3:");
     show_grid(g3);
 
     g = std::move(g3);
+    log("g1 after g3 moved to g1:");
     show_grid(g);
 
     log("Should error here:");
@@ -91,7 +93,7 @@ int main()
     show_grid(g);
     log("g2:");
     show_grid(g2);
-    log("g == g2:");
+    log("g == g2: ", g == g2);
 
     std::swap(g, g2);
     log("After swap:");
