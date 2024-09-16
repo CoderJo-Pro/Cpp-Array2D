@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"path": ".."
+			"path": "."
 		}
 	],
 	"settings": {
@@ -73,8 +73,29 @@
 			"set": "cpp",
 			"ratio": "cpp",
 			"mutex": "cpp",
-			"semaphore": "cpp"
+			"semaphore": "cpp",
+			"csignal": "cpp",
+			"list": "cpp",
+			"xstring": "cpp",
+			"xtree": "cpp",
+			"xutility": "cpp",
+			"forward_list": "cpp",
+			"xmemory": "cpp",
+			"ios": "cpp",
+			"locale": "cpp",
+			"xfacet": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"xstddef": "cpp",
+			"xtr1common": "cpp"
 		},
-		"C_Cpp.default.cppStandard": "c++17"
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.compilerPath": "${default}"
 	}
 }

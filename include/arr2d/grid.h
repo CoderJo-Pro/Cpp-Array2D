@@ -13,7 +13,7 @@
 #include <version>
 
 // macro defs
-#include <arr2d/defs.h>
+#include "defs.h"
 
 namespace arr2d
 {
@@ -66,8 +66,14 @@ namespace arr2d
         {
             data_row_ptr new_data{data_row_allocator.allocate(p_height)};
             *new_data = allocator.allocate(p_size);
-            for (size_type row = 1; row < p_height; row++)
+
+            for (size_type row = 1; row != p_height; row++)
                 new_data[row] = new_data[row - 1] + p_width;
+
+            const pointer end = *new_data + p_size;
+            for (pointer ptr = *new_data; ptr != end; ++ptr)
+                ::new ((void*)ptr) value_type();
+
             return new_data;
         }
 
@@ -114,10 +120,7 @@ namespace arr2d
         constexpr reference at(size_type index) { return const_cast<reference>(static_cast<const grid>(*this).at(index)); }
         NODISCARD constexpr const_reference at(size_type index) const;
 
-        constexpr reference at(size_type x, size_type y)
-        {
-            return const_cast<reference>(static_cast<const grid>(*this).at(x, y));
-        }
+        constexpr reference at(size_type x, size_type y) { return const_cast<reference>(static_cast<const grid>(*this).at(x, y)); }
         NODISCARD constexpr const_reference at(size_type x, size_type y) const;
 
         template <typename U>
@@ -165,10 +168,7 @@ namespace arr2d
         constexpr const_reference operator[](size_type x, size_type y) const { return get(x, y); }
 #endif
 
-        friend constexpr bool operator==(const grid& lhs, const grid& rhs)
-        {
-            return std::equal(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
-        }
+        friend constexpr bool operator==(const grid& lhs, const grid& rhs) { return std::equal(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend()); }
         friend constexpr bool operator!=(const grid& rhs, const grid& lhs) { return !(lhs == rhs); }
     };
 
@@ -180,11 +180,13 @@ namespace arr2d
     template <typename T, typename measure_t, typename Alloc>
     grid<T, measure_t, Alloc>::~grid()
     {
-        if (data_) LIKELY
-        {
-            allocator.deallocate(*data_, size_);
-            data_row_allocator.deallocate(data_, height_);
-        }
+        if (data_)
+            LIKELY
+            {
+                std::for_each(begin(), end(), [](reference item) { item.~T(); });
+                allocator.deallocate(*data_, size_);
+                data_row_allocator.deallocate(data_, height_);
+            }
     }
 
     template <typename T, typename measure_t, typename Alloc>
@@ -229,7 +231,7 @@ namespace arr2d
         copy_from(rhs, new_data);
 
         // It's good here, can delete now
-        ~grid();
+        grid::~grid();
 
         // Assign to data_
         data_ = new_data;
