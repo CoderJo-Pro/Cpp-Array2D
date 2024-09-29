@@ -93,9 +93,15 @@
 			"xlocnum": "cpp",
 			"xloctime": "cpp",
 			"xstddef": "cpp",
-			"xtr1common": "cpp"
+			"xtr1common": "cpp",
+			"stack": "cpp",
+			"xhash": "cpp"
 		},
 		"C_Cpp.default.cppStandard": "c++17",
-		"C_Cpp.default.compilerPath": "${default}"
+		"C_Cpp.default.compilerPath": "${default}",
+		"C_Cpp.default.includePath": [
+			"${default}",
+			"${workspaceFolder}/tests/lib/catch2/src"
+		]
 	}
 }

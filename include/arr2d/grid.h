@@ -40,19 +40,16 @@ namespace arr2d
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
         using data_row = pointer;
-        using data_row_ptr = data_row*;
 
         using allocator_type = Alloc;
-        using data_row_allocator_type = typename allocator_type::template rebind<data_row>::other;
 
       private:
-        data_row_ptr data_{nullptr};
+        data_row data_{nullptr};
         size_type size_{0};
         size_type width_{0};
         size_type height_{0};
 
         static allocator_type allocator;
-        static data_row_allocator_type data_row_allocator;
 
         constexpr void reset()
         {
@@ -62,22 +59,18 @@ namespace arr2d
             height_ = 0;
         }
 
-        constexpr data_row_ptr alloc_data(size_type p_width, size_type p_height, size_type p_size)
+        constexpr data_row alloc_data(size_type p_width, size_type p_height, size_type p_size)
         {
-            data_row_ptr new_data{data_row_allocator.allocate(p_height)};
-            *new_data = allocator.allocate(p_size);
+            data_row new_data = allocator.allocate(p_size);
 
-            for (size_type row = 1; row != p_height; row++)
-                new_data[row] = new_data[row - 1] + p_width;
-
-            const pointer end = *new_data + p_size;
-            for (pointer ptr = *new_data; ptr != end; ++ptr)
+            const pointer end = new_data + p_size;
+            for (pointer ptr = new_data; ptr != end; ++ptr)
                 ::new ((void*)ptr) value_type();
 
             return new_data;
         }
 
-        constexpr void copy_from(const grid& from, data_row_ptr data) { std::copy(from.cbegin(), from.cend(), *data); }
+        constexpr void copy_from(const grid& from, data_row data) { std::copy(from.cbegin(), from.cend(), data); }
         constexpr void copy_from(const grid& from) { copy_from(from, data_); }
 
         constexpr void move_info_from(const grid& from)
@@ -111,11 +104,11 @@ namespace arr2d
         NODISCARD constexpr size_type width() const noexcept { return width_; }
         NODISCARD constexpr size_type height() const noexcept { return height_; }
 
-        constexpr reference get(size_type index) { return (*data_)[index]; }
-        NODISCARD constexpr const_reference get(size_type index) const { return (*data_)[index]; }
+        constexpr reference get(size_type index) { return data_[index]; }
+        NODISCARD constexpr const_reference get(size_type index) const { return data_[index]; }
 
-        constexpr reference get(size_type x, size_type y) { return data_[y][x]; }
-        NODISCARD constexpr const_reference get(size_type x, size_type y) const { return data_[y][x]; }
+        constexpr reference get(size_type x, size_type y) { return data_[y * width() + x]; }
+        NODISCARD constexpr const_reference get(size_type x, size_type y) const { return data_[y * width() + x]; }
 
         constexpr reference at(size_type index) { return const_cast<reference>(static_cast<const grid>(*this).at(index)); }
         NODISCARD constexpr const_reference at(size_type index) const;
@@ -130,11 +123,11 @@ namespace arr2d
             y = std::clamp<U>(y, 0, height_);
         }
 
-        constexpr iterator begin() { return iterator{*data_}; }
-        constexpr iterator end() { return iterator{*data_ + size()}; }
+        constexpr iterator begin() { return iterator{data_}; }
+        constexpr iterator end() { return iterator{data_ + size()}; }
 
-        NODISCARD constexpr const_iterator begin() const { return const_iterator{*data_}; }
-        NODISCARD constexpr const_iterator end() const { return const_iterator{*data_ + size()}; }
+        NODISCARD constexpr const_iterator begin() const { return const_iterator{data_}; }
+        NODISCARD constexpr const_iterator end() const { return const_iterator{data_ + size()}; }
 
         NODISCARD constexpr const_iterator cbegin() const { return const_iterator{begin()}; }
         NODISCARD constexpr const_iterator cend() const { return const_iterator{end()}; }
@@ -174,8 +167,6 @@ namespace arr2d
 
     template <typename T, typename measure_t, typename Alloc>
     typename grid<T, measure_t, Alloc>::allocator_type grid<T, measure_t, Alloc>::allocator{};
-    template <typename T, typename measure_t, typename Alloc>
-    typename grid<T, measure_t, Alloc>::data_row_allocator_type grid<T, measure_t, Alloc>::data_row_allocator{};
 
     template <typename T, typename measure_t, typename Alloc>
     grid<T, measure_t, Alloc>::~grid()
@@ -184,8 +175,7 @@ namespace arr2d
             LIKELY
             {
                 std::for_each(begin(), end(), [](reference item) { item.~T(); });
-                allocator.deallocate(*data_, size_);
-                data_row_allocator.deallocate(data_, height_);
+                allocator.deallocate(data_, size_);
             }
     }
 
@@ -210,7 +200,7 @@ namespace arr2d
     template <typename T, typename measure_t, typename Alloc>
     constexpr void grid<T, measure_t, Alloc>::swap(grid& other) noexcept
     {
-        data_row_ptr temp_data = data_;
+        data_row temp_data = data_;
         measure_t temp_size = size_;
         measure_t temp_width = width_;
         measure_t temp_height = height_;
@@ -225,7 +215,7 @@ namespace arr2d
     constexpr grid<T, measure_t, Alloc>& grid<T, measure_t, Alloc>::operator=(const grid& rhs)
     {
         // This code only allocates the memory to avoid pointing null data when bad_alloc
-        data_row_ptr new_data = alloc_data(rhs.width_, rhs.height_, rhs.size_);
+        data_row new_data = alloc_data(rhs.width_, rhs.height_, rhs.size_);
 
         // Allocate successfully, copy it to new_data
         copy_from(rhs, new_data);
