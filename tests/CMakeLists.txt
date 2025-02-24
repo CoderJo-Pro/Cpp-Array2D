@@ -15,5 +15,10 @@ add_subdirectory(lib/catch2)
 # These tests can use the Catch2-provided main
 add_executable(tests ${SRC_FILES})
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/catch2/extras")
+
+enable_testing()
 include(CTest)
-add_test(NAME GridTest COMMAND tests)
+include(Catch)
+catch_discover_tests(tests)
