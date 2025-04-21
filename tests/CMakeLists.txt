@@ -9,8 +9,14 @@ set(CXX_STANDARD_REQUIRED True)
 file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/*_test.cpp")
 
-
-add_subdirectory(lib/catch2)
+include(FetchContent)
+FetchContent_Declare(
+    catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v3.5.0
+    FIND_PACKAGE_ARGS
+)
+FetchContent_MakeAvailable(catch2)
 
 # These tests can use the Catch2-provided main
 add_executable(tests ${SRC_FILES})

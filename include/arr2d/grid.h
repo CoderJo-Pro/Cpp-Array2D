@@ -221,7 +221,7 @@ namespace arr2d
         copy_from(rhs, new_data);
 
         // It's good here, can delete now
-        grid::~grid();
+        this->~grid();
 
         // Assign to data_
         data_ = new_data;
