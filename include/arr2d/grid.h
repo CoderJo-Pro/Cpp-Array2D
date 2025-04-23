@@ -156,11 +156,6 @@ namespace arr2d
         constexpr reference operator[](size_type index) { return get(index); }
         constexpr const_reference operator[](size_type index) const { return get(index); }
 
-#if __cpp_multidimensional_subscript >= 202110L
-        constexpr reference operator[](size_type x, size_type y) { return get(x, y); }
-        constexpr const_reference operator[](size_type x, size_type y) const { return get(x, y); }
-#endif
-
         friend constexpr bool operator==(const grid& lhs, const grid& rhs) { return std::equal(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend()); }
         friend constexpr bool operator!=(const grid& rhs, const grid& lhs) { return !(lhs == rhs); }
     };
