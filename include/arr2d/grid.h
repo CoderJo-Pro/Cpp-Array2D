@@ -96,7 +96,7 @@ namespace arr2d
 
         ~grid();
 
-        NODISCARD constexpr size_type empty() const noexcept { return size_ == 0; }
+        NODISCARD constexpr bool empty() const noexcept { return !size_; }
         NODISCARD constexpr size_type max_size() const noexcept { return size_; }
 
         NODISCARD constexpr size_type size() const noexcept { return size_; }
