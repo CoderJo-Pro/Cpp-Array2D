@@ -103,6 +103,8 @@ namespace arr2d
         NODISCARD constexpr size_type width() const noexcept { return width_; }
         NODISCARD constexpr size_type height() const noexcept { return height_; }
 
+        NODISCARD constexpr pointer data() { return data_; }
+
         constexpr reference get(size_type index) { return data_[index]; }
         NODISCARD constexpr const_reference get(size_type index) const { return data_[index]; }
 
