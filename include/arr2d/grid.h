@@ -115,13 +115,6 @@ namespace arr2d
         constexpr reference at(size_type x, size_type y) { return const_cast<reference>(static_cast<const grid>(*this).at(x, y)); }
         NODISCARD constexpr const_reference at(size_type x, size_type y) const;
 
-        template <typename U>
-        constexpr void clamp(U& x, U& y) const noexcept
-        {
-            x = std::clamp<U>(x, 0, width_);
-            y = std::clamp<U>(y, 0, height_);
-        }
-
         constexpr iterator begin() { return iterator{data_}; }
         constexpr iterator end() { return iterator{data_ + size()}; }
 
@@ -145,9 +138,6 @@ namespace arr2d
 
         constexpr grid& operator=(const grid& rhs);
         constexpr grid& operator=(grid&& rhs) noexcept;
-
-        constexpr reference operator()(size_type index) { return get(index); }
-        constexpr const_reference operator()(size_type index) const { return get(index); }
 
         constexpr reference operator()(size_type x, size_type y) { return get(x, y); }
         constexpr const_reference operator()(size_type x, size_type y) const { return get(x, y); }
