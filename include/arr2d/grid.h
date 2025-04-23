@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <exception>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
