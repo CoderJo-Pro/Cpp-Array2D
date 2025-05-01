@@ -8,7 +8,6 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
-#include <type_traits>
 #include <version>
 
 // macro defs
@@ -20,9 +19,6 @@ namespace arr2d
     template <typename T, typename measure_t = std::size_t, typename Alloc = std::allocator<T>>
     class grid
     {
-        static_assert(std::is_integral_v<measure_t> && std::is_unsigned_v<measure_t>,
-                      "grid<T, measure_t>: std::is_integral<measure_t>::value && std::is_unsigned<measure_t>::value != true");
-
       public:
         using value_type = T;
         using pointer = value_type*;
