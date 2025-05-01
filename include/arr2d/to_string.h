@@ -8,10 +8,10 @@ namespace arr2d
 {
 
     template <typename... Args>
-    static std::string to_string(Args&&... args)
+    static std::string to_string(const Args&... args)
     {
         std::ostringstream oss;
-        (oss << ... << args); // Fold expression
+        (oss << ... << args);
         return oss.str();
     }
 
